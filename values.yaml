@@ -8,6 +8,6 @@ virium:
 viriumConfig:
   apiUsername: "virium_api_username"
   apiPassword: "virium_api_password"
-  apiurl: "http://100.100.0.147:8787"
+  apiurl: "http://192.168.0.147:8787"
   initiator: "iqn.2025-04.net.virer.virium:target1"
-  debug: "5"
+  debug: "2"
