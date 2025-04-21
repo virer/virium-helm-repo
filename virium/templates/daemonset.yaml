@@ -25,9 +25,14 @@ spec:
         name: csi-provisioner
         resources: {{- toYaml .Values.virium.csiProvisioner.resources | nindent 10 }}
         securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsNonRoot: false
           capabilities:
             drop:
               - ALL
+          seccompProfile:
+            type: RuntimeDefault
         volumeMounts:
         - mountPath: /csi
           name: socket-dir
@@ -50,8 +55,14 @@ spec:
         name: node-driver-registrar
         resources: {{- toYaml .Values.virium.nodeDriverRegistrar.resources | nindent 10
           }}
-        securityContext:
+          allowPrivilegeEscalation: false
           privileged: true
+          runAsNonRoot: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         volumeMounts:
         - mountPath: /csi
           name: socket-dir
@@ -113,6 +124,8 @@ spec:
             add:
             - SYS_ADMIN
           privileged: true
+          seccompProfile:
+            type: RuntimeDefault
         volumeMounts:
         - mountPath: /csi
           name: socket-dir
