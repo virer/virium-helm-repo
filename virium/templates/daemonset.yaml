@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: csi-{{ include "virium.fullname" . }}-ds
+  labels:
+  {{- include "virium.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: csi-virium
+    {{- include "virium.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: csi-virium
+      {{- include "virium.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args: {{- toYaml .Values.virium.csiProvisioner.args | nindent 8 }}
+        env:
+        - name: ADDRESS
+          value: /csi/csi.sock
+        image: {{ .Values.virium.csiProvisioner.image.repository }}:{{ .Values.virium.csiProvisioner.image.tag
+          | default .Chart.AppVersion }}
+        name: csi-provisioner
+        resources: {{- toYaml .Values.virium.csiProvisioner.resources | nindent 10 }}
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+        volumeMounts:
+        - mountPath: /csi
+          name: socket-dir
+      - args: {{- toYaml .Values.virium.livenessProbe.args | nindent 8 }}
+        image: {{ .Values.virium.livenessProbe.image.repository }}:{{ .Values.virium.livenessProbe.image.tag
+          | default .Chart.AppVersion }}
+        name: liveness-probe
+        resources: {{- toYaml .Values.virium.livenessProbe.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /csi
+          name: socket-dir
+      - args: {{- toYaml .Values.virium.nodeDriverRegistrar.args | nindent 8 }}
+        env:
+        - name: KUBE_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: {{ .Values.virium.nodeDriverRegistrar.image.repository }}:{{ .Values.virium.nodeDriverRegistrar.image.tag
+          | default .Chart.AppVersion }}
+        name: node-driver-registrar
+        resources: {{- toYaml .Values.virium.nodeDriverRegistrar.resources | nindent 10
+          }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /csi
+          name: socket-dir
+        - mountPath: /registration
+          name: registration-dir
+      - args: {{- toYaml .Values.virium.virium.args | nindent 8 }}
+        env:
+        - name: API_URL
+          valueFrom:
+            secretKeyRef:
+              key: apiurl
+              name: {{ include "virium.fullname" . }}-creds
+        - name: INITIATOR
+          valueFrom:
+            secretKeyRef:
+              key: initiator
+              name: {{ include "virium.fullname" . }}-creds
+        - name: API_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: api_username
+              name: {{ include "virium.fullname" . }}-creds
+        - name: API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: api_password
+              name: {{ include "virium.fullname" . }}-creds
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DEBUG
+          valueFrom:
+            secretKeyRef:
+              key: debug
+              name: {{ include "virium.fullname" . }}-creds
+        - name: CSI_ENDPOINT
+          value: unix:///csi/csi.sock
+        image: {{ .Values.virium.virium.image.repository }}:{{ .Values.virium.virium.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.virium.virium.imagePullPolicy }}
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /healthz
+            port: healthz
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+        name: virium
+        ports:
+        - containerPort: 29753
+          name: healthz
+          protocol: TCP
+        resources: {{- toYaml .Values.virium.virium.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+          privileged: true
+        volumeMounts:
+        - mountPath: /csi
+          name: socket-dir
+        - mountPath: /var/lib/kubelet/
+          mountPropagation: Bidirectional
+          name: mountpoint-dir
+        - mountPath: /dev
+          name: host-dev
+        - mountPath: /host
+          mountPropagation: HostToContainer
+          name: host-root
+        - mountPath: /sbin/iscsiadm
+          name: chroot-iscsiadm
+          subPath: iscsiadm
+        - mountPath: /var/run/virium.csi.virer.net
+          name: iscsi-csi-run-dir
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      nodeSelector: {{- toYaml .Values.virium.nodeSelector | nindent 8 }}
+      serviceAccount: {{ include "virium.fullname" . }}-sa
+      volumes:
+      - hostPath:
+          path: /var/lib/kubelet/plugins/virium.csi.virer.net
+          type: DirectoryOrCreate
+        name: socket-dir
+      - hostPath:
+          path: /var/lib/kubelet/
+          type: DirectoryOrCreate
+        name: mountpoint-dir
+      - hostPath:
+          path: /var/lib/kubelet/plugins_registry
+          type: DirectoryOrCreate
+        name: registration-dir
+      - hostPath:
+          path: /dev
+        name: host-dev
+      - hostPath:
+          path: /
+          type: Directory
+        name: host-root
+      - configMap:
+          defaultMode: 365
+          name: {{ include "virium.fullname" . }}-configmap-csi-iscsiadm
+        name: chroot-iscsiadm
+      - hostPath:
+          path: /var/run/virium.csi.virer.net
+        name: iscsi-csi-run-dir
