@@ -5,7 +5,7 @@ on:
     branches:
       - main  # You can change this to the branch you want to trigger on
     paths:
-      - 'charts/**'  # Only trigger if something changes in the chart directory
+      - 'virium/**'  # Only trigger if something changes in the virium directory
 
 jobs:
   release:
