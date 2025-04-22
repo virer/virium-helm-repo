@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main  # You can change this to the branch you want to trigger on
-    paths:
-      - 'virium/**'  # Only trigger if something changes in the virium directory
+#     paths:
+#     - 'virium/**'  # Only trigger if something changes in the virium directory
 
 jobs:
   release:
