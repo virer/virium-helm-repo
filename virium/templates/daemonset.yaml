@@ -43,8 +43,49 @@ spec:
         resources: {{- toYaml .Values.virium.livenessProbe.resources | nindent 10 }}
         volumeMounts:
         - mountPath: /csi
+          name: socket-dir          
+      - args: {{- toYaml .Values.virium.csiSnapshotter.args | nindent 8 }}
+        env:
+          - name: ADDRESS
+            value: /csi/csi.sock
+        imagePullPolicy: IfNotPresent
+        name: csi-snapshotter
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - name: socket-dir
+            mountPath: /csi          
+        image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag 
+          | default .Chart.AppVersion }}  
+      - args: {{- toYaml .Values.virium.csiResizer.args | nindent 8 }}
+        env:
+          - name: ADDRESS
+            value: /csi/csi.sock
+        imagePullPolicy: "IfNotPresent"
+        name: csi-resizer
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          runAsNonRoot: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /csi
           name: socket-dir
+        image: {{ .Values.virium.csiResizer.image.repository }}:{{ .Values.virium.csiResizer.image.tag 
+          | default .Chart.AppVersion }}
       - args: {{- toYaml .Values.virium.nodeDriverRegistrar.args | nindent 8 }}
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          seccompProfile:
+            type: RuntimeDefault
         env:
         - name: KUBE_NODE_NAME
           valueFrom:

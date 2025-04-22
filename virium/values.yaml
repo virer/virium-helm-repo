@@ -10,7 +10,7 @@ virium:
     - --v=$(DEBUG)
     image:
       repository: docker.io/scaps/virium-csi-driver-iscsi
-      tag: v0.2.1.5
+      tag: v0.2.2.5
     imagePullPolicy: IfNotPresent
     resources:
       limits:
@@ -18,12 +18,27 @@ virium:
       requests:
         cpu: 10m
         memory: 20Mi
+  csiResizer:
+    image: 
+      repository: registry.k8s.io/sig-storage/csi-resizer
+      tag:  v1.12.0
+    args:
+    - "--v=2"
+    - "--csi-address=$(ADDRESS)"
+    - "--leader-election"
+  csiSnapshotter:
+    image: 
+      repository: registry.k8s.io/sig-storage/csi-snapshotter
+      tag: v8.2.0
+    args:
+    - "--v=5"
+    - "--csi-address=$(ADDRESS)"
+    - "--leader-election"        
   csiProvisioner:
     args:
     - -v=2
     - --csi-address=$(ADDRESS)
     - --leader-election
-    - --leader-election-namespace=kube-system
     - --extra-create-metadata=true
     - --immediate-topology=true
     - --feature-gates=HonorPVReclaimPolicy=true
