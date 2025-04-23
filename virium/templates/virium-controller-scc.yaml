@@ -1,0 +1,30 @@
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: virium-controller-scc
+allowHostDirVolumePlugin: true
+allowedHostPaths:
+  - pathPrefix: "/var/lib/kubelet/plugins/virium.csi.virer.net"
+    readOnly: false
+allowPrivilegedContainer: false
+allowHostNetwork: false
+allowHostPorts: false
+allowHostPID: false
+allowHostIPC: false
+runAsUser:
+  type: MustRunAsRange
+seLinuxContext:
+  type: MustRunAs
+fsGroup:
+  type: MustRunAs
+supplementalGroups:
+  type: RunAsAny
+volumes:
+  - hostPath
+  - emptyDir
+  - configMap
+  - secret
+readOnlyRootFilesystem: false
+users: []
+groups: []

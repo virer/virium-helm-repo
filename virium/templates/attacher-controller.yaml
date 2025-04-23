@@ -1,0 +1,47 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: csi-attacher
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      external-attacher: csi-attacher
+  template:
+    metadata:
+      labels:
+        external-attacher: csi-attacher
+    spec:
+      serviceAccount: csi-attacher
+      containers:
+        - name: csi-attacher
+          image: {{ .Values.virium.csiAttacher.image.repository }}:{{ .Values.virium.csiAttacher.image.tag | default .Chart.AppVersion }}
+          args: {{- toYaml .Values.virium.csiAttacher.args | nindent 10 }}          
+          env:
+            - name: MY_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ADDRESS
+              value: /csi/csi.sock
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 8080
+              name: http-endpoint
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /healthz/leader-election
+              port: http-endpoint
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+            periodSeconds: 20
+          volumeMounts:
+          - name: socket-dir
+            mountPath: /csi  
+      volumes:
+      - hostPath:
+          path: /var/lib/kubelet/plugins/virium.csi.virer.net
+          type: DirectoryOrCreate
+        name: socket-dir

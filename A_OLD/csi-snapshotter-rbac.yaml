@@ -42,7 +42,7 @@ metadata:
   name: csi-provisioner-role
 subjects:
   - kind: ServiceAccount
-    name: csi-provisioner
+    name: {{ include "virium.fullname" . }}-controller
     # replace with non-default namespace name
     namespace: {{ .Release.Namespace }}
 roleRef:
@@ -73,7 +73,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: csi-provisioner
+    name: {{ include "virium.fullname" . }}-controller
     # replace with non-default namespace name
     namespace: {{ .Release.Namespace }}
 roleRef:
@@ -88,7 +88,7 @@ metadata:
   name: csi-snapshotter-provisioner-role
 subjects:
   - kind: ServiceAccount
-    name: csi-snapshotter # from rbac.yaml
+    name: {{ include "virium.fullname" . }}-controller
     # replace with non-default namespace name
     namespace: {{ .Release.Namespace }}
 roleRef:
@@ -105,24 +105,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: csi-snapshotter # from rbac.yaml
+    name: {{ include "virium.fullname" . }}-controller
     # replace with non-default namespace name
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
   name: external-provisioner-cfg # from rbac-external-provisioner.yaml
   apiGroup: rbac.authorization.k8s.io
-
-# ---
-# kind: Service
-# apiVersion: v1
-# metadata:
-#   name: csi-snapshotter
-#   labels:
-#     app.kubernetes.io/name: csi-snapshotter
-# spec:
-#   selector:
-#     app.kubernetes.io/name: csi-snapshotter
-#   ports:
-#     - name: dummy
-#       port: 12345

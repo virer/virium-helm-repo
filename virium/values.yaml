@@ -10,7 +10,7 @@ virium:
     - --v=$(DEBUG)
     image:
       repository: docker.io/scaps/virium-csi-driver-iscsi
-      tag: v0.2.2.5
+      tag: v0.2.2.7
     imagePullPolicy: IfNotPresent
     resources:
       limits:
@@ -21,19 +21,21 @@ virium:
   csiResizer:
     image: 
       repository: registry.k8s.io/sig-storage/csi-resizer
-      tag:  v1.12.0
+      tag: v1.12.0
     args:
     - "--v=2"
     - "--csi-address=$(ADDRESS)"
     - "--leader-election"
+    - "--http-endpoint=:8080"
   csiSnapshotter:
     image: 
       repository: registry.k8s.io/sig-storage/csi-snapshotter
       tag: v8.2.0
     args:
-    - "--v=5"
+    - "--v=2"
     - "--csi-address=$(ADDRESS)"
-    - "--leader-election"        
+    - "--leader-election"
+    - "--http-endpoint=:8080"    
   csiProvisioner:
     args:
     - -v=2
@@ -43,8 +45,9 @@ virium:
     - --immediate-topology=true
     - --feature-gates=HonorPVReclaimPolicy=true
     - --timeout=1200s
-    - --retry-interval-max=30m
+    - --retry-interval-max=15m
     - --node-deployment-immediate-binding=true
+    - --http-endpoint=:8080
     env:
       address: /csi/csi.sock
     image:
@@ -53,6 +56,20 @@ virium:
     resources:
       limits:
         memory: 400Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+  csiAttacher:
+    image: 
+      repository: registry.k8s.io/sig-storage/csi-attacher
+      tag: v3.5.0
+    args:
+    - "--v=5"
+    - "--csi-address=$(ADDRESS)"
+    - "--leader-election"
+    resources:
+      limits:
+        memory: 200Mi
       requests:
         cpu: 10m
         memory: 20Mi

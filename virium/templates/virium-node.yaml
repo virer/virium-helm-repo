@@ -1,85 +1,28 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: csi-{{ include "virium.fullname" . }}-ds
-  labels:
-  {{- include "virium.labels" . | nindent 4 }}
+  name: csi-virium-node
+  labels: {{- include "virium.labels" . | nindent 4 }}
+    app: csi-virium-node
 spec:
   selector:
     matchLabels:
-      app: csi-virium
+      app: csi-virium-node
     {{- include "virium.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: csi-virium
+        app: csi-virium-node
       {{- include "virium.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-      - args: {{- toYaml .Values.virium.csiProvisioner.args | nindent 8 }}
-        env:
-        - name: ADDRESS
-          value: /csi/csi.sock
-        image: {{ .Values.virium.csiProvisioner.image.repository }}:{{ .Values.virium.csiProvisioner.image.tag
-          | default .Chart.AppVersion }}
-        name: csi-provisioner
-        resources: {{- toYaml .Values.virium.csiProvisioner.resources | nindent 10 }}
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          runAsNonRoot: false
-          capabilities:
-            drop:
-              - ALL
-          seccompProfile:
-            type: RuntimeDefault
-        volumeMounts:
-        - mountPath: /csi
-          name: socket-dir
       - args: {{- toYaml .Values.virium.livenessProbe.args | nindent 8 }}
-        image: {{ .Values.virium.livenessProbe.image.repository }}:{{ .Values.virium.livenessProbe.image.tag
-          | default .Chart.AppVersion }}
+        image: {{ .Values.virium.livenessProbe.image.repository }}:{{ .Values.virium.livenessProbe.image.tag | default .Chart.AppVersion }}
         name: liveness-probe
         resources: {{- toYaml .Values.virium.livenessProbe.resources | nindent 10 }}
         volumeMounts:
         - mountPath: /csi
-          name: socket-dir          
-      - args: {{- toYaml .Values.virium.csiSnapshotter.args | nindent 8 }}
-        env:
-          - name: ADDRESS
-            value: /csi/csi.sock
-        imagePullPolicy: IfNotPresent
-        name: csi-snapshotter
-        securityContext:
-          allowPrivilegeEscalation: true
-          privileged: true
-          seccompProfile:
-            type: RuntimeDefault
-        volumeMounts:
-          - name: socket-dir
-            mountPath: /csi          
-        image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag 
-          | default .Chart.AppVersion }}  
-      - args: {{- toYaml .Values.virium.csiResizer.args | nindent 8 }}
-        env:
-          - name: ADDRESS
-            value: /csi/csi.sock
-        imagePullPolicy: "IfNotPresent"
-        name: csi-resizer
-        securityContext:
-          allowPrivilegeEscalation: true
-          privileged: true
-          runAsNonRoot: false
-          capabilities:
-            drop:
-              - ALL
-          seccompProfile:
-            type: RuntimeDefault
-        volumeMounts:
-        - mountPath: /csi
-          name: socket-dir
-        image: {{ .Values.virium.csiResizer.image.repository }}:{{ .Values.virium.csiResizer.image.tag 
-          | default .Chart.AppVersion }}
+          name: socket-dir              
       - args: {{- toYaml .Values.virium.nodeDriverRegistrar.args | nindent 8 }}
         securityContext:
           allowPrivilegeEscalation: true
@@ -91,14 +34,13 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: {{ .Values.virium.nodeDriverRegistrar.image.repository }}:{{ .Values.virium.nodeDriverRegistrar.image.tag
-          | default .Chart.AppVersion }}
+        image: {{ .Values.virium.nodeDriverRegistrar.image.repository }}:{{ .Values.virium.nodeDriverRegistrar.image.tag | default .Chart.AppVersion }}
         name: node-driver-registrar
         resources: {{- toYaml .Values.virium.nodeDriverRegistrar.resources | nindent 10
           }}
-          allowPrivilegeEscalation: false
+        securityContext:          
+          allowPrivilegeEscalation: true
           privileged: true
-          runAsNonRoot: false
           capabilities:
             drop:
               - ALL
@@ -115,22 +57,22 @@ spec:
           valueFrom:
             secretKeyRef:
               key: apiurl
-              name: {{ include "virium.fullname" . }}-creds
+              name: virium-creds
         - name: INITIATOR
           valueFrom:
             secretKeyRef:
               key: initiator
-              name: {{ include "virium.fullname" . }}-creds
+              name: virium-creds
         - name: API_USERNAME
           valueFrom:
             secretKeyRef:
               key: api_username
-              name: {{ include "virium.fullname" . }}-creds
+              name: virium-creds
         - name: API_PASSWORD
           valueFrom:
             secretKeyRef:
               key: api_password
-              name: {{ include "virium.fullname" . }}-creds
+              name: virium-creds
         - name: NODE_ID
           valueFrom:
             fieldRef:
@@ -139,11 +81,10 @@ spec:
           valueFrom:
             secretKeyRef:
               key: debug
-              name: {{ include "virium.fullname" . }}-creds
+              name: virium-creds
         - name: CSI_ENDPOINT
           value: unix:///csi/csi.sock
-        image: {{ .Values.virium.virium.image.repository }}:{{ .Values.virium.virium.image.tag
-          | default .Chart.AppVersion }}
+        image: {{ .Values.virium.virium.image.repository }}:{{ .Values.virium.virium.image.tag | default .Chart.AppVersion }}
         imagePullPolicy: {{ .Values.virium.virium.imagePullPolicy }}
         livenessProbe:
           failureThreshold: 5
@@ -161,10 +102,10 @@ spec:
         resources: {{- toYaml .Values.virium.virium.resources | nindent 10 }}
         securityContext:
           allowPrivilegeEscalation: true
+          privileged: true
           capabilities:
             add:
             - SYS_ADMIN
-          privileged: true
           seccompProfile:
             type: RuntimeDefault
         volumeMounts:
@@ -186,7 +127,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       nodeSelector: {{- toYaml .Values.virium.nodeSelector | nindent 8 }}
-      serviceAccount: {{ include "virium.fullname" . }}-sa
+      serviceAccount: virium-node
       volumes:
       - hostPath:
           path: /var/lib/kubelet/plugins/virium.csi.virer.net

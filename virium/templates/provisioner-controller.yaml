@@ -1,30 +1,23 @@
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: csi-snapshot
+  name: csi-provisioner
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: csi-snapshot
-  minReadySeconds: 35
-  strategy:
-    rollingUpdate:
-      maxSurge: 0
-      maxUnavailable: 1
-    type: RollingUpdate
+      app: csi-provisioner
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: csi-snapshot
+        app: csi-provisioner
     spec:
-      serviceAccountName: snapshot-controller
+      serviceAccount: csi-provisioner
       containers:
-        - name: snapshot-controller
-          image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag | default .Chart.AppVersion }}
-          args: {{- toYaml .Values.virium.csiSnapshotter.args | nindent 10 }}
-          imagePullPolicy: IfNotPresent
+        - name: csi-provisioner
+          image: {{ .Values.virium.csiProvisioner.image.repository }}:{{ .Values.virium.csiProvisioner.image.tag | default .Chart.AppVersion }}
+          args: {{- toYaml .Values.virium.csiProvisioner.args | nindent 10 }}          
+          imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 8080
               name: http-endpoint
@@ -34,9 +27,9 @@ spec:
             httpGet:
               path: /healthz/leader-election
               port: http-endpoint
-            initialDelaySeconds: 10
+            initialDelaySeconds: 60
             timeoutSeconds: 10
-            periodSeconds: 20          
+            periodSeconds: 20
           env:
           - name: ADDRESS
             value: /csi/csi.sock

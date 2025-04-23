@@ -1,30 +1,27 @@
----
+# This YAML file demonstrates how to deploy the external
+# resizer for use with the mock CSI driver. It
+# depends on the RBAC definitions from rbac.yaml.
+
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: csi-snapshot
+  name: csi-resizer
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: csi-snapshot
-  minReadySeconds: 35
-  strategy:
-    rollingUpdate:
-      maxSurge: 0
-      maxUnavailable: 1
-    type: RollingUpdate
+      external-resizer: csi-resizer
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: csi-snapshot
+        external-resizer: csi-resizer
     spec:
-      serviceAccountName: snapshot-controller
+      serviceAccount: csi-resizer
       containers:
-        - name: snapshot-controller
-          image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag | default .Chart.AppVersion }}
-          args: {{- toYaml .Values.virium.csiSnapshotter.args | nindent 10 }}
-          imagePullPolicy: IfNotPresent
+        - name: csi-resizer
+          image: {{ .Values.virium.csiResizer.image.repository }}:{{ .Values.virium.csiResizer.image.tag | default .Chart.AppVersion }}
+          args: {{- toYaml .Values.virium.csiResizer.args | nindent 10 }}
+          imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 8080
               name: http-endpoint
@@ -36,7 +33,7 @@ spec:
               port: http-endpoint
             initialDelaySeconds: 10
             timeoutSeconds: 10
-            periodSeconds: 20          
+            periodSeconds: 20
           env:
           - name: ADDRESS
             value: /csi/csi.sock
@@ -47,4 +44,4 @@ spec:
       - hostPath:
           path: /var/lib/kubelet/plugins/virium.csi.virer.net
           type: DirectoryOrCreate
-        name: socket-dir            
+        name: socket-dir     

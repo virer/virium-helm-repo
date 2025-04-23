@@ -10,5 +10,5 @@ roleRef:
   name: '{{ include "virium.fullname" . }}-role'
 subjects:
 - kind: ServiceAccount
-  name: '{{ include "virium.fullname" . }}-sa'
+  name: {{ include "virium.fullname" . }}-controller
   namespace: '{{ .Release.Namespace }}'

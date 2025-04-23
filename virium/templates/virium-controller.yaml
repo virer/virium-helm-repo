@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csi-virium-controller
+  labels: {{- include "virium.labels" . | nindent 4 }}
+    app: csi-virium-controller
+spec:
+  selector:
+    matchLabels:
+      app: csi-virium-controller
+    {{- include "virium.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: csi-virium-controller
+      {{- include "virium.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:      
+      - args: {{- toYaml .Values.virium.virium.args | nindent 8 }}      
+        env:
+        - name: API_URL
+          valueFrom:
+            secretKeyRef:
+              key: apiurl
+              name: virium-creds
+        - name: INITIATOR
+          valueFrom:
+            secretKeyRef:
+              key: initiator
+              name: virium-creds
+        - name: API_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: api_username
+              name: virium-creds
+        - name: API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: api_password
+              name: virium-creds
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DEBUG
+          valueFrom:
+            secretKeyRef:
+              key: debug
+              name: virium-creds
+        - name: CSI_ENDPOINT
+          value: unix:///csi/csi.sock
+        image: {{ .Values.virium.virium.image.repository }}:{{ .Values.virium.virium.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.virium.virium.imagePullPolicy }}
+        name: virium
+        resources: {{- toYaml .Values.virium.virium.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /csi
+          name: socket-dir
+        - mountPath: /var/lib/kubelet/
+          name: mountpoint-dir
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      nodeSelector: {{- toYaml .Values.virium.nodeSelector | nindent 8 }}
+      serviceAccount: virium-controller
+      volumes:
+      - hostPath:
+          path: /var/lib/kubelet/plugins/virium.csi.virer.net
+          type: DirectoryOrCreate
+        name: socket-dir
+      - hostPath:
+          path: /var/lib/kubelet/
+          type: DirectoryOrCreate
+        name: mountpoint-dir
