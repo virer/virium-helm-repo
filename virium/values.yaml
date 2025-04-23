@@ -35,7 +35,6 @@ virium:
     - "--v=2"
     - "--csi-address=$(ADDRESS)"
     - "--leader-election"
-    - "--http-endpoint=:8080"    
   csiProvisioner:
     args:
     - -v=2
@@ -47,7 +46,6 @@ virium:
     - --timeout=1200s
     - --retry-interval-max=15m
     - --node-deployment-immediate-binding=true
-    - --http-endpoint=:8080
     env:
       address: /csi/csi.sock
     image:

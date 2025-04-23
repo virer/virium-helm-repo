@@ -70,7 +70,7 @@ metadata:
   name: snapshot-controller-role
 subjects:
   - kind: ServiceAccount
-    name: snapshot-controller
+    name: virium-controller
     namespace: '{{ .Release.Namespace }}'
 roleRef:
   kind: ClusterRole
@@ -96,7 +96,7 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 subjects:
   - kind: ServiceAccount
-    name: snapshot-controller
+    name: virium-controller
 roleRef:
   kind: Role
   name: snapshot-controller-leaderelection

@@ -52,7 +52,7 @@ metadata:
   name: csi-attacher-role
 subjects:
   - kind: ServiceAccount
-    name: csi-attacher
+    name: virium-controller
     # replace with non-default namespace name
     namespace: '{{ .Release.Namespace }}'
 roleRef:
@@ -83,7 +83,7 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 subjects:
   - kind: ServiceAccount
-    name: csi-attacher
+    name: virium-controller
     # replace with non-default namespace name
     namespace: '{{ .Release.Namespace }}'
 roleRef:

@@ -150,7 +150,7 @@ spec:
         name: host-root
       - configMap:
           defaultMode: 365
-          name: {{ include "virium.fullname" . }}-configmap-csi-iscsiadm
+          name: virium-cfgmap-iscsiadm
         name: chroot-iscsiadm
       - hostPath:
           path: /var/run/virium.csi.virer.net

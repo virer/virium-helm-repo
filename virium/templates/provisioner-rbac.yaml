@@ -72,7 +72,7 @@ metadata:
   name: csi-provisioner-role
 subjects:
   - kind: ServiceAccount
-    name: csi-provisioner
+    name: virium-controller
     # replace with non-default namespace name
     namespace: '{{ .Release.Namespace }}'
 roleRef:
@@ -120,7 +120,7 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 subjects:
   - kind: ServiceAccount
-    name: csi-provisioner
+    name: virium-controller
     # replace with non-default namespace name
     namespace: '{{ .Release.Namespace }}'
 roleRef:
