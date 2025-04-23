@@ -58,20 +58,6 @@ spec:
         - mountPath: /csi
           name: socket-dir
         image: {{ .Values.virium.csiResizer.image.repository }}:{{ .Values.virium.csiResizer.image.tag | default .Chart.AppVersion }}
-      - args: {{- toYaml .Values.virium.csiAttacher.args | nindent 10 }}          
-        image: {{ .Values.virium.csiAttacher.image.repository }}:{{ .Values.virium.csiAttacher.image.tag | default .Chart.AppVersion }}
-        name: csi-attacher
-        env:
-          - name: MY_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          - name: ADDRESS
-            value: /csi/csi.sock
-        imagePullPolicy: "IfNotPresent"            
-        volumeMounts:
-        - mountPath: /csi
-          name: socket-dir             
       - args: {{- toYaml .Values.virium.controller.args | nindent 8 }}      
         env:
         - name: API_URL
@@ -126,7 +112,5 @@ spec:
       nodeSelector: {{- toYaml .Values.virium.nodeSelector | nindent 8 }}
       serviceAccount: virium-controller
       volumes:
-      - hostPath:
-          path: /var/lib/kubelet/plugins/virium.csi.virer.net
-          type: DirectoryOrCreate
-        name: socket-dir
+      - name: socket-dir
+        emptyDir: {}

@@ -16,6 +16,20 @@ spec:
       {{- include "virium.selectorLabels" . | nindent 8 }}
     spec:
       containers:
+      - args: {{- toYaml .Values.virium.csiAttacher.args | nindent 10 }}          
+        image: {{ .Values.virium.csiAttacher.image.repository }}:{{ .Values.virium.csiAttacher.image.tag | default .Chart.AppVersion }}
+        name: csi-attacher
+        env:
+          - name: MY_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: ADDRESS
+            value: /csi/csi.sock
+        imagePullPolicy: "IfNotPresent"            
+        volumeMounts:
+        - mountPath: /csi
+          name: socket-dir                   
       - args: {{- toYaml .Values.virium.livenessProbe.args | nindent 8 }}
         image: {{ .Values.virium.livenessProbe.image.repository }}:{{ .Values.virium.livenessProbe.image.tag | default .Chart.AppVersion }}
         name: liveness-probe

@@ -8,12 +8,12 @@
 #   attacher, in which case leadership election must be enabled;
 #   this influences the RBAC setup, see below
 
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: csi-attacher
-  # replace with non-default namespace name
-  namespace: '{{ .Release.Namespace }}'
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: csi-attacher
+#  # replace with non-default namespace name
+#  namespace: '{{ .Release.Namespace }}'
 
 ---
 # Attacher must be able to work with PVs, CSINodes and VolumeAttachments
@@ -52,7 +52,7 @@ metadata:
   name: csi-attacher-role
 subjects:
   - kind: ServiceAccount
-    name: virium-controller
+    name: virium-node
     # replace with non-default namespace name
     namespace: '{{ .Release.Namespace }}'
 roleRef:
@@ -83,7 +83,7 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 subjects:
   - kind: ServiceAccount
-    name: virium-controller
+    name: virium-node
     # replace with non-default namespace name
     namespace: '{{ .Release.Namespace }}'
 roleRef:
