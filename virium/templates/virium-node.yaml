@@ -51,7 +51,7 @@ spec:
           name: socket-dir
         - mountPath: /registration
           name: registration-dir
-      - args: {{- toYaml .Values.virium.virium.args | nindent 8 }}
+      - args: {{- toYaml .Values.virium.node.args | nindent 8 }}
         env:
         - name: API_URL
           valueFrom:
@@ -84,8 +84,8 @@ spec:
               name: virium-creds
         - name: CSI_ENDPOINT
           value: unix:///csi/csi.sock
-        image: {{ .Values.virium.virium.image.repository }}:{{ .Values.virium.virium.image.tag | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.virium.virium.imagePullPolicy }}
+        image: {{ .Values.virium.node.image.repository }}:{{ .Values.virium.node.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.virium.node.imagePullPolicy }}
         livenessProbe:
           failureThreshold: 5
           httpGet:
@@ -94,12 +94,12 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
           timeoutSeconds: 10
-        name: virium
+        name: virium-node
         ports:
         - containerPort: 29753
           name: healthz
           protocol: TCP
-        resources: {{- toYaml .Values.virium.virium.resources | nindent 10 }}
+        resources: {{- toYaml .Values.virium.node.resources | nindent 10 }}
         securityContext:
           allowPrivilegeEscalation: true
           privileged: true

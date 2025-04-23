@@ -1,7 +1,6 @@
 virium:
-  virium:
+  controller:
     args:
-    - --nodeid=$(NODE_ID)
     - --endpoint=$(CSI_ENDPOINT)
     - --apiurl=$(API_URL)
     - --initiatorname=$(INITIATOR)
@@ -10,7 +9,7 @@ virium:
     - --v=$(DEBUG)
     image:
       repository: docker.io/scaps/virium-csi-driver-iscsi
-      tag: v0.2.2.7
+      tag: v0.2.2.9
     imagePullPolicy: IfNotPresent
     resources:
       limits:
@@ -18,6 +17,22 @@ virium:
       requests:
         cpu: 10m
         memory: 20Mi
+  node:
+    args:
+    - --nodeid=$(NODE_ID)
+    - --endpoint=$(CSI_ENDPOINT)
+    - --initiatorname=$(INITIATOR)
+    - --v=$(DEBUG)
+    image:
+      repository: docker.io/scaps/virium-csi-driver-iscsi
+      tag: v0.2.2.9
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        memory: 300Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi        
   csiResizer:
     image: 
       repository: registry.k8s.io/sig-storage/csi-resizer

@@ -1,10 +1,14 @@
 virium:
-  virium:
+  controller:
     image:
       repository: docker.io/scaps/virium-csi-driver-iscsi
-      tag: v0.2.2.7
+      tag: v0.2.2.9
+  node:
+    image:
+      repository: docker.io/scaps/virium-controller
+      tag: v0.2.2.9
   nodeSelector:
-    kubernetes.io/os: linux
+    kubernetes.io/os: linux    
 viriumConfig:
   apiUsername: "virium_api_username"
   apiPassword: "virium_api_password"

@@ -4,6 +4,7 @@ metadata:
   name: virium.csi.virer.net
 spec:
   attachRequired: true
+  requiresRepublish: true
   volumeLifecycleModes:
     - Persistent
     - Ephemeral

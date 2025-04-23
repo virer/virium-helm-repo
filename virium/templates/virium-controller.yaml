@@ -72,7 +72,7 @@ spec:
         volumeMounts:
         - mountPath: /csi
           name: socket-dir             
-      - args: {{- toYaml .Values.virium.virium.args | nindent 8 }}      
+      - args: {{- toYaml .Values.virium.controller.args | nindent 8 }}      
         env:
         - name: API_URL
           valueFrom:
@@ -94,10 +94,6 @@ spec:
             secretKeyRef:
               key: api_password
               name: virium-creds
-        - name: NODE_ID
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
         - name: DEBUG
           valueFrom:
             secretKeyRef:
@@ -105,8 +101,10 @@ spec:
               name: virium-creds
         - name: CSI_ENDPOINT
           value: unix:///csi/csi.sock
-        image: {{ .Values.virium.virium.image.repository }}:{{ .Values.virium.virium.image.tag | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.virium.virium.imagePullPolicy }}
+        image: {{ .Values.virium.controller.image.repository }}:{{ .Values.virium.controller.image.tag | default .Chart.AppVersion }}
+        command: 
+        - /virium-controller
+        imagePullPolicy: {{ .Values.virium.controller.imagePullPolicy }}
         livenessProbe:
           failureThreshold: 5
           httpGet:
@@ -115,12 +113,12 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
           timeoutSeconds: 10
-        name: virium
+        name: virium-controller
         ports:
         - containerPort: 29753
           name: healthz
           protocol: TCP
-        resources: {{- toYaml .Values.virium.virium.resources | nindent 10 }}
+        resources: {{- toYaml .Values.virium.controller.resources | nindent 10 }}
         volumeMounts:
         - mountPath: /csi
           name: socket-dir
