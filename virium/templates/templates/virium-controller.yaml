@@ -93,6 +93,9 @@ spec:
         command: 
         - /virium-controller
         imagePullPolicy: {{ .Values.virium.controller.imagePullPolicy }}
+        securityContext:
+          privileged: true
+          allowPrivilegeEscalation: true
         livenessProbe:
           failureThreshold: 5
           httpGet:
