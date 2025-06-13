@@ -38,18 +38,17 @@ spec:
           - name: ADDRESS
             value: /csi/csi.sock
         imagePullPolicy: IfNotPresent
+        image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag | default .Chart.AppVersion }}  
         name: csi-snapshotter
-        securityContext:
-          allowPrivilegeEscalation: true
-          privileged: true
-          {{ if not .Values.openshift.enabled }}
-          seccompProfile:
-            type: RuntimeDefault
-          {{- end -}}
         volumeMounts:
           - name: socket-dir
             mountPath: /csi
-        image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag | default .Chart.AppVersion }}  
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+        {{ if not .Values.openshift.enabled }}
+          seccompProfile:
+            type: RuntimeDefault {{- end -}}
       - args: {{- toYaml .Values.virium.csiResizer.args | nindent 8 }}
         env:
           - name: ADDRESS
