@@ -9,10 +9,10 @@ This driver works in conjunction with a running and properly configured [**Viriu
 ## 🔧 Usage:
 
 ```
-helm repo add virium https://virer.github.io/virium-helm-repo/charts/
+helm repo add virium https://virer.github.io/virium-helm-repo/
 helm repo update
 helm search repo virium
-helm install a1 virium --namespace=virium --create-namespace -f values.yaml 
+helm install a1 virium/virium --namespace=virium --create-namespace -f values.yaml 
 ```
 ## ⚙️ Instruction
 
