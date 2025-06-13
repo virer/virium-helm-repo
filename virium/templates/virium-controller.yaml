@@ -42,7 +42,8 @@ spec:
         securityContext:
           allowPrivilegeEscalation: true
           privileged: true
-          {{- if .Values.openshift.disabled -}}          
+          {{- if .Values.openshift.enabled -}}
+          {{- else -}}
           seccompProfile:
             type: RuntimeDefault
           {{- end -}}
