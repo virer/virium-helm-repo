@@ -3,6 +3,16 @@ entries:
   virium:
   - apiVersion: v2
     appVersion: 0.2.7
+    created: "2025-06-13T11:47:08.098527639Z"
+    description: A Helm chart for Kubernetes
+    digest: 92809d7479714128384fb3fc2855367f619d78c13ca6c9513bb9166e8ae629f7
+    name: virium
+    type: application
+    urls:
+    - https://github.com/virer/virium-helm-repo/releases/download/virium-0.3.8/virium-0.3.8.tgz
+    version: 0.3.8
+  - apiVersion: v2
+    appVersion: 0.2.7
     created: "2025-06-13T11:38:16.197228209Z"
     description: A Helm chart for Kubernetes
     digest: bc0fb2aaba488c9a1e5915b9d99adbed3ac1fab38a780579e0dce2a5af6311d7
@@ -51,4 +61,4 @@ entries:
     urls:
     - https://github.com/virer/virium-helm-repo/releases/download/virium-0.3.1/virium-0.3.1.tgz
     version: 0.3.1
-generated: "2025-06-13T11:38:16.197248888Z"
+generated: "2025-06-13T11:47:08.098556313Z"
