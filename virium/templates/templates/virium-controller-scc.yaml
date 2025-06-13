@@ -7,7 +7,7 @@ allowHostDirVolumePlugin: true
 allowedHostPaths:
   - pathPrefix: "/var/lib/kubelet/plugins/virium.csi.virer.net"
     readOnly: false
-allowPrivilegedContainer: false
+allowPrivilegedContainer: true
 allowHostNetwork: false
 allowHostPorts: false
 allowHostPID: false
@@ -26,7 +26,8 @@ volumes:
   - configMap
   - secret
 readOnlyRootFilesystem: false
-users: []
+users: 
+- system:serviceaccount:{{ .Release.Namespace }}:virium-controller
 groups: []
 ---
 ---
