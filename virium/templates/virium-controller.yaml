@@ -42,8 +42,10 @@ spec:
         securityContext:
           allowPrivilegeEscalation: true
           privileged: true
+          {{- if .Values.openshift.disabled -}}          
           seccompProfile:
             type: RuntimeDefault
+          {{- end -}}
         volumeMounts:
           - name: socket-dir
             mountPath: /csi          

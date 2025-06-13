@@ -8,7 +8,7 @@ virium:
     - --api_password=$(API_PASSWORD)
     - --v=$(DEBUG)
     image:
-      repository: docker.io/scaps/virium-csi-driver-iscsi
+      repository: docker.io/scaps/virium-controller
       tag: v0.2.3.4
     imagePullPolicy: IfNotPresent
     resources:
@@ -127,3 +127,5 @@ viriumConfig:
   apiurl: "http://virium-api-fqdn.domain.tld:8787"
   initiator: "iqn.2025-04.net.virer.virium.test:target1"
   debug: "2"
+openshift:
+  enabled: false
