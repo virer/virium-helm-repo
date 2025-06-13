@@ -48,7 +48,7 @@ spec:
           {{- end -}}
         volumeMounts:
           - name: socket-dir
-            mountPath: /csi          
+            mountPath: /csi
         image: {{ .Values.virium.csiSnapshotter.image.repository }}:{{ .Values.virium.csiSnapshotter.image.tag | default .Chart.AppVersion }}  
       - args: {{- toYaml .Values.virium.csiResizer.args | nindent 8 }}
         env:
