@@ -15,3 +15,5 @@ viriumConfig:
   apiurl: "http://192.168.0.147:8787"
   initiator: "iqn.2025-04.net.virer.virium:target1"
   debug: "2"
+openshift:
+  enabled: true

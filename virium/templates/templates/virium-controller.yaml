@@ -46,9 +46,9 @@ spec:
         securityContext:
           allowPrivilegeEscalation: true
           privileged: true
-        {{ if not .Values.openshift.enabled }}
-          seccompProfile:
-            type: RuntimeDefault {{- end -}}
+          {{ if not .Values.openshift.enabled }}seccompProfile:
+            type: RuntimeDefault
+          {{ end }}
       - args: {{- toYaml .Values.virium.csiResizer.args | nindent 8 }}
         env:
           - name: ADDRESS
